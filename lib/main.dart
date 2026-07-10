@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const RoporChat());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class RoporChat extends StatelessWidget {
+  const RoporChat({super.key});
 
   @override
   Widget build(BuildContext context) {
