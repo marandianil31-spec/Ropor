@@ -11,8 +11,6 @@ class RoporChat extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Ropor Chat',
-      theme: ThemeData.dark(),
       home: const HomeScreen(),
     );
   }
@@ -32,9 +30,34 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ChatScreen(),
+              ),
+            );
+          },
           child: const Text("Start Random Chat"),
         ),
+      ),
+    );
+  }
+}
+
+class ChatScreen extends StatelessWidget {
+  const ChatScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text("Searching..."),
+        backgroundColor: Colors.black,
+      ),
+      body: const Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }
