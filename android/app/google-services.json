@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "19554102533",
+    "firebase_url": "https://sereng-ea0b0-default-rtdb.firebaseio.com",
+    "project_id": "sereng-ea0b0",
+    "storage_bucket": "sereng-ea0b0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19554102533:android:48527f0f1bb474e9779b6c",
+        "android_client_info": {
+          "package_name": "com.sereng"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVQQ20CsoAXCLfGtQ5HVduWTvCJkyMSC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
