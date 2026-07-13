@@ -1,22 +1,22 @@
 {
   "project_info": {
-    "project_number": "19554102533",
-    "firebase_url": "https://sereng-ea0b0-default-rtdb.firebaseio.com",
-    "project_id": "sereng-ea0b0",
-    "storage_bucket": "sereng-ea0b0.firebasestorage.app"
+    "project_number": "341547368699",
+    "firebase_url": "https://roporchat-default-rtdb.firebaseio.com",
+    "project_id": "roporchat",
+    "storage_bucket": "roporchat.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:19554102533:android:48527f0f1bb474e9779b6c",
+        "mobilesdk_app_id": "1:341547368699:android:c2c463aaae3038ee96f05e",
         "android_client_info": {
-          "package_name": "com.sereng"
+          "package_name": "com.my.ropor.chat"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBVQQ20CsoAXCLfGtQ5HVduWTvCJkyMSC8"
+          "current_key": "AIzaSyDOHH52qsz0cIEePyeNfNuF6SRJFozrInM"
         }
       ],
       "services": {
