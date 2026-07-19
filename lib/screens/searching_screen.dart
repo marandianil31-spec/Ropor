@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-
+import '../services/match_service.dart';
 class SearchingScreen extends StatefulWidget {
   const SearchingScreen({super.key});
 
@@ -12,7 +12,7 @@ class _SearchingScreenState extends State<SearchingScreen> {
   @override
   void initState() {
     super.initState();
-
+    MatchService.joinQueue();
  
     Timer(const Duration(seconds: 5), () {
       if (mounted) {
