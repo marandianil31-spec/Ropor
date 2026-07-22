@@ -1,3 +1,5 @@
+import 'services/auth_service.dart';
+import 'screens/searching_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -34,12 +36,15 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
+            await
+          AuthService.signInAnonymously();
+
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ChatScreen(),
-              ),
-            );
+                builder: (context) => const
+            SearchingScreen(),
+             )
           },
           child: const Text("Start Random Chat"),
         ),
