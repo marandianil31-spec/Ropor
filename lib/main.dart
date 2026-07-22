@@ -44,9 +44,10 @@ class HomeScreen extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => const
             SearchingScreen(),
-             )
+             ),
           },
-          child: const Text("Start Random Chat"),
+          child: const Text("Start Random Chat"
+
         ),
       ),
     );
