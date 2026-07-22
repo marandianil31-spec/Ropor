@@ -9,9 +9,14 @@ class MatchService {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    await db.child("waiting").child(user.uid).set({
-      "uid": user.uid,
-      "time": ServerValue.timestamp,
-    });
+    try {
+  await db.child("waiting").child(user.uid).set({
+    "uid": user.uid,
+    "time": ServerValue.timestamp,
+  });
+  print("SUCCESS");
+} catch (e) {
+  print(e);
   }
+ }
 }
