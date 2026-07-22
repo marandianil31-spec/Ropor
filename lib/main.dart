@@ -36,8 +36,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            await
-          AuthService.signInAnonymously();
+           await AuthService.signInAnonymously();
 
             Navigator.push(
               context,
@@ -45,6 +44,7 @@ class HomeScreen extends StatelessWidget {
                 builder: (context) => const
             SearchingScreen(),
              ),
+          );
           },
           child: const Text("Start Random Chat"),
 
