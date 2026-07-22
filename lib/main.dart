@@ -46,7 +46,7 @@ class HomeScreen extends StatelessWidget {
             SearchingScreen(),
              ),
           },
-          child: const Text("Start Random Chat"
+          child: const Text("Start Random Chat"),
 
         ),
       ),
