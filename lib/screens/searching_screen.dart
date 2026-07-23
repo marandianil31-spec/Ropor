@@ -14,7 +14,9 @@ class _SearchingScreenState extends State<SearchingScreen> {
   void initState() {
     super.initState();
     await MatchService.startMatching();
- 
+    {);
+    }
+
     Timer(const Duration(seconds: 5), () {
       if (mounted) {
         Navigator.pop(context);
