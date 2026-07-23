@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import '../services/match_service.dart';
 class SearchingScreen extends StatefulWidget {
   const SearchingScreen({super.key});
@@ -12,7 +13,9 @@ class _SearchingScreenState extends State<SearchingScreen> {
   @override
   void initState() {
     super.initState();
-    MatchService.joinQueue();
+    FirebaseDatabase.instance.ref().child("test").set({
+  "hello": "world",
+});
  
     Timer(const Duration(seconds: 5), () {
       if (mounted) {
