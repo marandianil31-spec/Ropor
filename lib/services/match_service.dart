@@ -4,29 +4,41 @@ import 'package:firebase_database/firebase_database.dart';
 class MatchService {
   static final DatabaseReference db = FirebaseDatabase.instance.ref();
 
-  static Future<void> joinQueue() async {
+  static Future<void> startMatching() async {
     final user = FirebaseAuth.instance.currentUser;
 
-    print("USER UID: $user.uid}");
+    if (user == null) return;
 
-    if (user == null) {
-      print("User is NULL");
-      return;
+    final waitingRef = db.child("waiting");
+
+    final waitingSnapshot = await waitingRef.get();
+
+    if (waitingSnapshot.exists) {
+      final data = waitingSnapshot.value as Map;
+
+      if (data.isNotEmpty) {
+        final firstUid = data.keys.first.toString();
+
+        if (firstUid != user.uid) {
+          final roomId = db.child("chatrooms").push().key!;
+
+          await db.child("chatrooms").child(roomId).set({
+            "users": {
+              firstUid: true,
+              user.uid: true,
+            },
+            "createdAt": ServerValue.timestamp,
+          });
+
+          await waitingRef.child(firstUid).remove();
+
+          return;
+        }
+      }
     }
 
-    try {
-      print("Writing to Firebase...");
-      
-      await db.child("waiting").child(user.uid).set({
-        "uid": user.uid,
-        "time": ServerValue.timestamp,
-      });
-     print("WRITE SUCCESS");
-      
-      print("Waiting node created successfully");
-    } catch (e, s) {
-      print("ERROR: $e");
-      print(s);
-    }
+    await waitingRef.child(user.uid).set({
+      "time": ServerValue.timestamp,
+    });
   }
 }
