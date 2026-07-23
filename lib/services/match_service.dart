@@ -21,7 +21,8 @@ class MatchService {
         "uid": user.uid,
         "time": ServerValue.timestamp,
       });
-
+     print("WRITE SUCCESS");
+      
       print("Waiting node created successfully");
     } catch (e, s) {
       print("ERROR: $e");
