@@ -13,9 +13,7 @@ class _SearchingScreenState extends State<SearchingScreen> {
   @override
   void initState() {
     super.initState();
-    FirebaseDatabase.instance.ref().child("test").set({
-  "hello": "world",
-});
+    MatchService.joinQueue();
  
     Timer(const Duration(seconds: 5), () {
       if (mounted) {
