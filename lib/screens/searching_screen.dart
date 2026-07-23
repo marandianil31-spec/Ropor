@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 import '../services/match_service.dart';
+
 class SearchingScreen extends StatefulWidget {
   const SearchingScreen({super.key});
 
@@ -10,18 +10,22 @@ class SearchingScreen extends StatefulWidget {
 }
 
 class _SearchingScreenState extends State<SearchingScreen> {
+
   @override
   void initState() {
     super.initState();
-    await MatchService.startMatching();
-  });
-    
 
-  Timer(const Duration(seconds: 5), () {
+    _startMatching();
+
+    Timer(const Duration(seconds: 5), () {
       if (mounted) {
         Navigator.pop(context);
       }
     });
+  }
+
+  Future<void> _startMatching() async {
+    await MatchService.startMatching();
   }
 
   @override
@@ -30,22 +34,14 @@ class _SearchingScreenState extends State<SearchingScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        elevation: 0,
         title: const Text("Searching..."),
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            SizedBox(
-              width: 70,
-              height: 70,
-              child: CircularProgressIndicator(
-                strokeWidth: 5,
-                color: Colors.deepPurple,
-              ),
-            ),
-            SizedBox(height: 25),
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
             Text(
               "Searching for a stranger...",
               style: TextStyle(
