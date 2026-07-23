@@ -13,7 +13,7 @@ class _SearchingScreenState extends State<SearchingScreen> {
   @override
   void initState() {
     super.initState();
-    MatchService.joinQueue();
+    await MatchService.startMatching();
  
     Timer(const Duration(seconds: 5), () {
       if (mounted) {
