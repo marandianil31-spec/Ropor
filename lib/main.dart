@@ -1,3 +1,4 @@
+import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'screens/searching_screen.dart';
 import 'package:flutter/material.dart';
