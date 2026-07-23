@@ -15,7 +15,7 @@ class MatchService {
     }
 
     try {
-      print("Writing to Firebase...);
+      print("Writing to Firebase...");
       
       await db.child("waiting").child(user.uid).set({
         "uid": user.uid,
