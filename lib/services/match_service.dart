@@ -7,7 +7,7 @@ class MatchService {
   static Future<void> joinQueue() async {
     final user = FirebaseAuth.instance.currentUser;
 
-    print("USER: $user");
+    print("USER UID: $user.uid}");
 
     if (user == null) {
       print("User is NULL");
@@ -15,6 +15,8 @@ class MatchService {
     }
 
     try {
+      print("Writing to Firebase...);
+      
       await db.child("waiting").child(user.uid).set({
         "uid": user.uid,
         "time": ServerValue.timestamp,
