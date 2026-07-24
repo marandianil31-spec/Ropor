@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 import 'searching_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -15,7 +17,9 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
+            await AuthService.signInAnonymously();
+
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -28,4 +32,4 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-}+
+}
