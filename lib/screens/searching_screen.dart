@@ -16,12 +16,6 @@ class _SearchingScreenState extends State<SearchingScreen> {
     super.initState();
 
     _startMatching();
-
-    Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    });
   }
 
   Future<void> _startMatching() async {
