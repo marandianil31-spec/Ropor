@@ -1,27 +1,42 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/match_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SearchingScreen extends StatefulWidget {
   const SearchingScreen({super.key});
-
+  
   @override
   State<SearchingScreen> createState() => _SearchingScreenState();
 }
 
 class _SearchingScreenState extends State<SearchingScreen> {
-
+  final DatabaseReference db = FirebaseDatabase.instance.ref();
+StreamSubscription<DatabaseEvent>? _roomListener;
   @override
   void initState() {
     super.initState();
 
     _startMatching();
+    _listenForRoom();
   }
 
   Future<void> _startMatching() async {
     await MatchService.startMatching();
   }
+  void _listenForRoom() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
 
+  _roomListener = db.child("chatrooms").onValue.listen((event) {
+    final data = event.snapshot.value;
+
+    if (data == null) return;
+
+    print("Checking for room...");
+  });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
