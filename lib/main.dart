@@ -1,14 +1,18 @@
-import 'firebase_options.dart';
-import 'services/auth_service.dart';
-import 'screens/searching_screen.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+import 'firebase_options.dart';
+import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const RoporChat());
 }
 
@@ -30,48 +34,40 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text("Ropor Chat"),
-        centerTitle: true,
-        backgroundColor: Colors.black,
       ),
       body: Center(
         child: ElevatedButton(
+          child: const Text("Test Firebase"),
           onPressed: () async {
-           await AuthService.signInAnonymously();
+            try {
+              final user = await AuthService.signInAnonymously();
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const
-            SearchingScreen(),
-             ),
-          );
+              await FirebaseDatabase.instance.ref("test").set({
+                "uid": user!.uid,
+                "message": "Hello",
+              });
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Database Write Success"),
+                  ),
+                );
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                  ),
+                );
+              }
+            }
           },
-          child: const Text("Start Random Chat"),
-
         ),
       ),
     );
   }
 }
-
-class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text("Searching..."),
-        backgroundColor: Colors.black,
-      ),
-      body: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-}
-
