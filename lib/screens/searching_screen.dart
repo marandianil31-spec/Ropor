@@ -37,14 +37,15 @@ StreamSubscription<DatabaseEvent>? _roomListener;
 
     final rooms = Map<String, dynamic>.from(data);
 
-    for (final entry in rooms.entries) {
-      final roomId = entry.key;
-      final room = Map<String, dynamic>.from(entry.value);
+    for (final roomEntry in rooms.entries) {
+      final roomId = roomEntry.key;
+      final room = Map<String, dynamic>.from(roomEntry.value);
 
-      final user1 = room["user1"];
-      final user2 = room["user2"];
+      if (!room.containsKey("users")) continue;
 
-      if (user.uid == user1 || user.uid == user2) {
+      final users = Map<String, dynamic>.from(room["users"]);
+
+      if (users.containsKey(user.uid)) {
         _roomListener?.cancel();
 
         Navigator.pushReplacement(
@@ -58,7 +59,7 @@ StreamSubscription<DatabaseEvent>? _roomListener;
       }
     }
   });
- }  
+ } 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
