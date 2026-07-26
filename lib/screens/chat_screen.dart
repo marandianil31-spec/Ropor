@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
-
+  final String roomId;
+  
+  const Chatscreen({
+    super.key,
+    required this.roomId,});
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
