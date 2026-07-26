@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 class ChatScreen extends StatefulWidget {
   final String roomId;
   
-  const Chatscreen({
+  const ChatScreen({
     super.key,
     required this.roomId,});
   @override
