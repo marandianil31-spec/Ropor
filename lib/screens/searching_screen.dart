@@ -26,18 +26,39 @@ StreamSubscription<DatabaseEvent>? _roomListener;
   Future<void> _startMatching() async {
     await MatchService.startMatching();
   }
-  void _listenForRoom() {
+ void _listenForRoom() {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) return;
 
   _roomListener = db.child("chatrooms").onValue.listen((event) {
     final data = event.snapshot.value;
 
-    if (data == null) return;
+    if (data == null || data is! Map) return;
 
-    print("Checking for room...");
+    final rooms = Map<String, dynamic>.from(data);
+
+    for (final entry in rooms.entries) {
+      final roomId = entry.key;
+      final room = Map<String, dynamic>.from(entry.value);
+
+      final user1 = room["user1"];
+      final user2 = room["user2"];
+
+      if (user.uid == user1 || user.uid == user2) {
+        _roomListener?.cancel();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChatScreen(roomId: roomId),
+          ),
+        );
+
+        break;
+      }
+    }
   });
-  }
+ }  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
