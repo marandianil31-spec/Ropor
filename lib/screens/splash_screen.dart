@@ -1,3 +1,4 @@
+import 'home_screen.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 
@@ -14,9 +15,13 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, "/home");
-    });
-  }
+      Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(
+    builder: (context) => const HomeScreen(),
+  ),
+);
+});
 
   @override
   Widget build(BuildContext context) {
