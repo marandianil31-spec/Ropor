@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../main.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,12 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-      );
+      Navigator.pushReplacementNamed(context, "/home");
     });
   }
 
@@ -31,33 +25,29 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(
-              Icons.forum,
-              color: Colors.red,
-              size: 80,
+              Icons.chat_bubble,
+              size: 90,
+              color: Colors.deepPurple,
             ),
             SizedBox(height: 20),
             Text(
-              "ROPOR CHAT",
+              "Ropor Chat",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 30,
+                fontSize: 34,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 2,
               ),
             ),
             SizedBox(height: 10),
             Text(
-              "Connect Freely",
-              style: TextStyle(
-                color: Colors.yellow,
-                fontSize: 16,
-              ),
+              "Talk Freely • Meet Randomly",
+              style: TextStyle(color: Colors.white70),
             ),
             SizedBox(height: 40),
             CircularProgressIndicator(
-              color: Colors.green,
+              color: Colors.deepPurple,
             ),
           ],
         ),
