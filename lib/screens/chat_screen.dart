@@ -1,3 +1,8 @@
+import '../theme/app_theme.dart';
+import '../widgets/top_bar.dart';
+import '../widgets/warning_card.dart';
+import '../widgets/message_bubble.dart';
+import '../widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -17,70 +22,32 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Stranger"),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.flag),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.skip_next),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(12),
-              children: const [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Chip(
-                    label: Text("Connected with Stranger"),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.emoji_emotions),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.attach_file),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: messageController,
-                      decoration: const InputDecoration(
-                        hintText: "Type a message...",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.mic),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.send),
-                  ),
-                ],
+  appBar: const TopBar(),
+  backgroundColor: AppTheme.background,
+  body: Column(
+    children: [
+      const WarningCard(),
+
+      const Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              MessageBubble(
+                message: "Hello 👋",
+                isMe: false,
               ),
-            ),
+              MessageBubble(
+                message: "Hi! How are you?",
+                isMe: true,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    );
+
+      const BottomBar(),
+    ],
+  ),
+  );
   }
 }
