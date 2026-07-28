@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class BottomBar extends StatefulWidget {
-  const BottomBar({super.key});
+  final Function(String) onSend;
+
+  const BottomBar({
+    super.key,
+    required this.onSend,
+  });
 
   @override
   State<BottomBar> createState() => _BottomBarState();
@@ -21,9 +26,7 @@ class _BottomBarState extends State<BottomBar> {
           children: [
             IconButton(
               icon: const Icon(Icons.attach_file),
-              onPressed: () {
-                // TODO: Attachment Menu
-              },
+              onPressed: () {},
             ),
 
             Expanded(
@@ -53,9 +56,11 @@ class _BottomBarState extends State<BottomBar> {
                 ),
                 onPressed: () {
                   if (hasText) {
-                    // TODO: Send Message
+                    widget.onSend(controller.text.trim());
+                    controller.clear();
+                    setState(() {});
                   } else {
-                    // TODO: Disconnect / Next
+                    // Next Stranger
                   }
                 },
               ),
