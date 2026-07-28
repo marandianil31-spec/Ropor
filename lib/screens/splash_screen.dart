@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -11,18 +12,26 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
-    super.initState();
+  @override
+void initState() {
+  super.initState();
+  _startApp();
+}
 
-    Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => const HomeScreen(),
-  ),
-);
-});
-  }
+Future<void> _startApp() async {
+  await FirebaseAuth.instance.signInAnonymously();
+
+  await Future.delayed(const Duration(seconds: 3));
+
+  if (!mounted) return;
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const HomeScreen(),
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
