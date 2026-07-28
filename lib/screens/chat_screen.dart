@@ -45,9 +45,10 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
 
-      const BottomBar(),
-    ],
-  ),
-  );
-  }
-}
+      BottomBar(
+  onSend: (text) {
+    print(text);
+  },
+),
+);
+      }
