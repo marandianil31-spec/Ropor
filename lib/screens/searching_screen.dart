@@ -25,6 +25,14 @@ StreamSubscription<DatabaseEvent>? _roomListener;
 
   Future<void> _startMatching() async {
     await MatchService.startMatching();
+    Future.delayed(const Duration(seconds: 3), () {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const ChatScreen(roomId: "test_room"),
+    ),
+  );
+});
   }
  void _listenForRoom() {
   final user = FirebaseAuth.instance.currentUser;
