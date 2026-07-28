@@ -1,3 +1,4 @@
+import 'searching_screen.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
@@ -58,8 +59,13 @@ class HomeScreen extends StatelessWidget {
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  // Searching Screen
-                },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const SearchingScreen(),
+    ),
+  );
+},
                 child: const Text("Start Chat"),
               ),
             ),
