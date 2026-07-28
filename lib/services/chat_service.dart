@@ -8,14 +8,18 @@ class ChatService {
   }
 
   Future<void> sendMessage({
-    required String roomId,
-    required String senderId,
-    required String text,
-  }) async {
-    await messagesRef(roomId).push().set({
-      "senderId": senderId,
-      "text": text,
-      "timestamp": ServerValue.timestamp,
-    });
-  }
+  required String roomId,
+  required String senderId,
+  required String text,
+}) async {
+  await messagesRef(roomId).push().set({
+    "senderId": senderId,
+    "text": text,
+    "timestamp": ServerValue.timestamp,
+  });
+}
+
+Stream<DatabaseEvent> messageStream(String roomId) {
+  return messagesRef(roomId).onValue;
+}
 }
