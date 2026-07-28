@@ -1,3 +1,4 @@
+import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/top_bar.dart';
 import '../widgets/warning_card.dart';
@@ -18,6 +19,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
+  final ChatService _chatService = ChatService();
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +47,15 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
 
-      BottomBar(
-  onSend: (text) {
-    print(text);
-  },
-),
-    ],
+    BottomBar(
+  onSend: (text) async {
+    // अभी अपना UID भेज रहे हैं, बाद में इसे FirebaseAuth से लेंगे
+    await _chatService.sendMessage(
+      roomId: widget.roomId,
+      senderId: "me",
+      text: text,
+        ],
   ),
 );
   }
-}
+      }
