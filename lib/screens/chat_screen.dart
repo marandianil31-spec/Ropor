@@ -32,21 +32,36 @@ class _ChatScreenState extends State<ChatScreen> {
       const WarningCard(),
 
        Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              MessageBubble(
-                message: "Hello 👋",
-                isMe: false,
-              ),
-              MessageBubble(
-                message: "Hi! How are you?",
-                isMe: true,
-              ),
-            ],
-          ),
-        ),
-      ),
+  child: StreamBuilder<DatabaseEvent>(
+    stream: _chatService.messageStream(widget.roomId),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData || snapshot.data!.snapshot.value == null) {
+        return const Center(
+          child: Text("No messages yet"),
+        );
+      }
+
+      final data = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
+      final messages = data.entries.toList();
+
+      return ListView.builder(
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final msg = messages[index].value;
+
+          return MessageBubble(
+            message: msg["text"] ?? "",
+            isMe: msg["senderId"] ==
+                FirebaseAuth.instance.currentUser!.uid,
+          );
+        },
+      );
+    },
+  ),
+),        );
+      },
+    ),
+),
 
     BottomBar(
   onSend: (text) async {
