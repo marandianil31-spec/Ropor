@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
     children: [
       const WarningCard(),
 
-      const Expanded(
+       Expanded(
         child: SingleChildScrollView(
           child: Column(
             children: [
