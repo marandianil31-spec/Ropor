@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/top_bar.dart';
@@ -51,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   onSend: (text) async {
     await _chatService.sendMessage(
       roomId: widget.roomId,
-      senderId: "me",
+      senderId: FirebaseAuth.instance.currentUser!.uid,
       text: text,
     );
   },
