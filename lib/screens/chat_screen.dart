@@ -49,13 +49,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
     BottomBar(
   onSend: (text) async {
-    // अभी अपना UID भेज रहे हैं, बाद में इसे FirebaseAuth से लेंगे
     await _chatService.sendMessage(
       roomId: widget.roomId,
       senderId: "me",
       text: text,
-        ],
+    );
+  },
+),
+    ],
   ),
 );
   }
-      }
+}
