@@ -37,8 +37,20 @@ class MatchService {
         }
       }
     }
+        await waitingRef.child(user.uid).set({
+      "time": ServerValue.timestamp,
+    });
+  }
 
-    await waitingRef.child(user.uid).set({
+  static Future<void> leaveRoom(String roomId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final roomRef = db.child("chatrooms").child(roomId);
+
+    await roomRef.child("users").child(user.uid).remove();
+
+    await db.child("waiting").child(user.uid).set({
       "time": ServerValue.timestamp,
     });
   }
