@@ -1,3 +1,4 @@
+import '../services/match_service.dart';
 import 'searching_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -74,14 +75,18 @@ class _ChatScreenState extends State<ChatScreen> {
       text: text,
     );
   },
-  onNext: () {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const SearchingScreen(),
-      ),
-    );
-  },
+  onNext: () async {
+  await MatchService.leaveRoom(widget.roomId);
+
+  if (!mounted) return;
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const SearchingScreen(),
+    ),
+  );
+},
 )
         ],
       ),
