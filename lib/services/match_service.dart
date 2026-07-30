@@ -23,12 +23,13 @@ class MatchService {
           final roomId = db.child("chatrooms").push().key!;
 
           await db.child("chatrooms").child(roomId).set({
-            "users": {
-              firstUid: true,
-              user.uid: true,
-            },
-            "createdAt": ServerValue.timestamp,
-          });
+  "roomId": roomId,
+  "users": {
+    firstUid: true,
+    user.uid: true,
+  },
+  "createdAt": ServerValue.timestamp,
+});
 
           await waitingRef.child(firstUid).remove();
 
