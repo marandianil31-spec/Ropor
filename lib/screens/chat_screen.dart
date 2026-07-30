@@ -1,3 +1,4 @@
+import 'searching_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -66,16 +67,19 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
 
           BottomBar(
-            onSend: (text) async {
-              await _chatService.sendMessage(
-                roomId: widget.roomId,
-                senderId: FirebaseAuth.instance.currentUser!.uid,
-                text: text,
-              );
-            },
-          ),
-        ],
+  onSend: (text) async {
+    await _chatService.sendMessage(
+      roomId: widget.roomId,
+      senderId: FirebaseAuth.instance.currentUser!.uid,
+      text: text,
+    );
+  },
+  onNext: () {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SearchingScreen(),
       ),
     );
-  }
-}
+  },
+),
