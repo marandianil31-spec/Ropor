@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class BottomBar extends StatefulWidget {
   final Function(String) onSend;
+final VoidCallback onNext;
 
-  const BottomBar({
-    super.key,
-    required this.onSend,
-  });
+const BottomBar({
+  super.key,
+  required this.onSend,
+  required this.onNext,
+});
 
   @override
   State<BottomBar> createState() => _BottomBarState();
@@ -60,7 +62,7 @@ class _BottomBarState extends State<BottomBar> {
                     controller.clear();
                     setState(() {});
                   } else {
-                    // Next Stranger
+                    widget.onNext();
                   }
                 },
               ),
