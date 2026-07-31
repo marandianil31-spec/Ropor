@@ -49,27 +49,50 @@ class _BottomBarState extends State<BottomBar> {
             const SizedBox(width: 8),
 
             CircleAvatar(
-              radius: 24,
-              backgroundColor: Colors.deepPurple,
-              child: IconButton(
-                icon: Icon(
-                  hasText ? Icons.send : Icons.sync,
-                  color: Colors.white,
+  radius: 24,
+  backgroundColor: Colors.deepPurple,
+  child: IconButton(
+    icon: const Icon(
+      Icons.attach_file,
+      color: Colors.white,
+    ),
+    onPressed: () {
+      showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text("Camera"),
+                  onTap: () => Navigator.pop(context),
                 ),
-                onPressed: () {
-                  if (hasText) {
-                    widget.onSend(controller.text.trim());
-                    controller.clear();
-                    setState(() {});
-                  } else {
-                    widget.onNext();
-                  }
-                },
-              ),
+                ListTile(
+                  leading: const Icon(Icons.photo),
+                  title: const Text("Gallery"),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.mic),
+                  title: const Text("Voice Message"),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.call),
+                  title: const Text("Audio Call"),
+                  onTap: () => Navigator.pop(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.videocam),
+                  title: const Text("Video Call"),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+          );
+        },
+      );
+    },
+  ),
+),
