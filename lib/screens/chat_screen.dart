@@ -29,67 +29,48 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const TopBar(),
-      backgroundColor: AppTheme.background,
-      body: Column(
-        children: [
-          const WarningCard(),
+      appBar: TopBar(
+  onReport: () {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Report User"),
+          content: const Text(
+            "Do you want to report this user?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
 
-          Expanded(
-            child: StreamBuilder<DatabaseEvent>(
-              stream: _chatService.messageStream(widget.roomId),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData ||
-                    snapshot.data!.snapshot.value == null) {
-                  return const Center(
-                    child: Text("No messages yet"),
-                  );
-                }
-
-                final data = snapshot.data!.snapshot.value
-                    as Map<dynamic, dynamic>;
-
-                final messages = data.entries.toList();
-
-                return ListView.builder(
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = messages[index].value;
-
-                    return MessageBubble(
-                      message: msg["text"] ?? "",
-                      isMe: msg["senderId"] ==
-                          FirebaseAuth.instance.currentUser!.uid,
-                    );
-                  },
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Report submitted"),
+                  ),
                 );
               },
+              child: const Text("Report"),
             ),
-          ),
-
-          BottomBar(
-  onSend: (text) async {
-    await _chatService.sendMessage(
-      roomId: widget.roomId,
-      senderId: FirebaseAuth.instance.currentUser!.uid,
-      text: text,
+          ],
+        );
+      },
     );
   },
   onNext: () async {
-  await MatchService.leaveRoom(widget.roomId);
+    await MatchService.leaveRoom(widget.roomId);
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const SearchingScreen(),
-    ),
-  );
-},
-)
-        ],
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SearchingScreen(),
       ),
     );
-  }
-}
+  },
+),
