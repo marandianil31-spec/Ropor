@@ -87,12 +87,9 @@ class _BottomBarState extends State<BottomBar> {
                   leading: const Icon(Icons.videocam),
                   title: const Text("Video Call"),
                   onTap: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  ),
-),
+          ],
+        ),
+      ),
+    );
+  }
+  }
