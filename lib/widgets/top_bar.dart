@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
-  const TopBar({super.key});
+  final VoidCallback onReport;
+  final VoidCallback onNext;
+
+  const TopBar({
+    super.key,
+    required this.onReport,
+    required this.onNext,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +27,11 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.flag, color: Colors.white),
-          onPressed: () {},
+          onPressed: onReport,
         ),
         IconButton(
           icon: const Icon(Icons.skip_next, color: Colors.white),
-          onPressed: () {},
+          onPressed: onNext,
         ),
       ],
     );
