@@ -1,111 +1,143 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 import '../services/match_service.dart';
-import 'chat_screen.dart';
+import '../services/chat_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/top_bar.dart';
+import '../widgets/warning_card.dart';
+import '../widgets/message_bubble.dart';
+import '../widgets/bottom_bar.dart';
 
-class SearchingScreen extends StatefulWidget {
-  const SearchingScreen({super.key});
+import 'searching_screen.dart';
+
+class ChatScreen extends StatefulWidget {
+  final String roomId;
+
+  const ChatScreen({
+    super.key,
+    required this.roomId,
+  });
 
   @override
-  State<SearchingScreen> createState() => _SearchingScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _SearchingScreenState extends State<SearchingScreen> {
-  bool _isSearching = true;
-  String _status = 'Searching for a stranger...';
-
-  @override
-  void initState() {
-    super.initState();
-    _startSearching();
-  }
-
-  Future<void> _startSearching() async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      if (!mounted) return;
-
-      setState(() {
-        _isSearching = false;
-        _status = 'User not logged in';
-      });
-      return;
-    }
-
-    try {
-      final roomId = await MatchService.findMatch(user.uid);
-
-      if (!mounted) return;
-
-      if (roomId != null && roomId.isNotEmpty) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChatScreen(roomId: roomId),
-          ),
-        );
-      } else {
-        setState(() {
-          _isSearching = false;
-          _status = 'Stranger not found';
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _isSearching = false;
-        _status = 'Something went wrong';
-      });
-    }
-  }
-
-  void _retry() {
-    setState(() {
-      _isSearching = true;
-      _status = 'Searching for a stranger...';
-    });
-
-    _startSearching();
-  }
+class _ChatScreenState extends State<ChatScreen> {
+  final ChatService _chatService = ChatService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (_isSearching)
-                  const CircularProgressIndicator(),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  _status,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+      appBar: TopBar(
+        onReport: () {
+          showDialog(
+            context: context,
+            builder: (dialogContext) {
+              return AlertDialog(
+                title: const Text('Report User'),
+                content: const Text(
+                  'Do you want to report this user?',
                 ),
-
-                const SizedBox(height: 24),
-
-                if (!_isSearching)
-                  ElevatedButton(
-                    onPressed: _retry,
-                    child: const Text('Retry'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                    },
+                    child: const Text('Cancel'),
                   ),
-              ],
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Report submitted'),
+                        ),
+                      );
+                    },
+                    child: const Text('Report'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        onNext: () async {
+          await MatchService.leaveRoom(widget.roomId);
+
+          if (!mounted) return;
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const SearchingScreen(),
+            ),
+          );
+        },
+      ),
+      backgroundColor: AppTheme.background,
+      body: Column(
+        children: [
+          const WarningCard(),
+          Expanded(
+            child: StreamBuilder<DatabaseEvent>(
+              stream: _chatService.messageStream(widget.roomId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData ||
+                    snapshot.data!.snapshot.value == null) {
+                  return const Center(
+                    child: Text('No messages yet'),
+                  );
+                }
+
+                final data = snapshot.data!.snapshot.value
+                    as Map<dynamic, dynamic>;
+
+                final messages = data.entries.toList();
+
+                return ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index].value;
+
+                    return MessageBubble(
+                      message: msg['text'] ?? '',
+                      isMe: msg['senderId'] ==
+                          FirebaseAuth.instance.currentUser?.uid,
+                    );
+                  },
+                );
+              },
             ),
           ),
-        ),
+          BottomBar(
+            onSend: (text) async {
+              final user = FirebaseAuth.instance.currentUser;
+
+              if (user == null) return;
+
+              await _chatService.sendMessage(
+                roomId: widget.roomId,
+                senderId: user.uid,
+                text: text,
+              );
+            },
+            onNext: () async {
+              await MatchService.leaveRoom(widget.roomId);
+
+              if (!mounted) return;
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SearchingScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
