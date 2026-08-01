@@ -129,7 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const SearchingScreen(),
+                  builder: (context) => SearchingScreen(),
                 ),
               );
             },
