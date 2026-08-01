@@ -17,9 +17,145 @@ class BottomBar extends StatefulWidget {
 class _BottomBarState extends State<BottomBar> {
   final TextEditingController controller = TextEditingController();
 
+  void _showAttachmentMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera Photo'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Camera Photo - coming next'),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.photo),
+                title: const Text('Gallery Photo'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Gallery Photo - coming next'),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text('Camera Video'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Camera Video - coming next'),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.video_library),
+                title: const Text('Gallery Video'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Gallery Video - coming next'),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.mic),
+                title: const Text('Voice Message'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Voice Message - coming next'),
+                    ),
+                  );
+                },
+              ),
+
+              const Divider(),
+
+              ListTile(
+                leading: const Icon(Icons.call),
+                title: const Text('Audio Call - VIP'),
+                trailing: const Icon(Icons.workspace_premium),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Audio Call is a VIP feature'),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.video_call),
+                title: const Text('Video Call - VIP'),
+                trailing: const Icon(Icons.workspace_premium),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Video Call is a VIP feature'),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _sendMessage() {
+    final text = controller.text.trim();
+
+    if (text.isEmpty) {
+      widget.onNext();
+      return;
+    }
+
+    widget.onSend(text);
+
+    controller.clear();
+
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final hasText = controller.text.trim().isNotEmpty;
+    final bool hasText = controller.text.trim().isNotEmpty;
 
     return SafeArea(
       child: Padding(
@@ -28,52 +164,22 @@ class _BottomBarState extends State<BottomBar> {
           children: [
             IconButton(
               icon: const Icon(Icons.attach_file),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return SafeArea(
-                      child: Wrap(
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.camera_alt),
-                            title: const Text("Camera"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.photo),
-                            title: const Text("Gallery"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.mic),
-                            title: const Text("Voice Message"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.call),
-                            title: const Text("Audio Call"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.videocam),
-                            title: const Text("Video Call"),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+              onPressed: _showAttachmentMenu,
             ),
 
             Expanded(
               child: TextField(
                 controller: controller,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) {
+                  setState(() {});
+                },
+                onSubmitted: (_) {
+                  if (hasText) {
+                    _sendMessage();
+                  }
+                },
                 decoration: InputDecoration(
-                  hintText: "Type a message...",
+                  hintText: 'Type a message...',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -88,18 +194,10 @@ class _BottomBarState extends State<BottomBar> {
               backgroundColor: Colors.deepPurple,
               child: IconButton(
                 icon: Icon(
-                  hasText ? Icons.send : Icons.sync,
+                  hasText ? Icons.send : Icons.skip_next,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  if (hasText) {
-                    widget.onSend(controller.text.trim());
-                    controller.clear();
-                    setState(() {});
-                  } else {
-                    widget.onNext();
-                  }
-                },
+                onPressed: _sendMessage,
               ),
             ),
           ],
