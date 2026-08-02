@@ -114,37 +114,43 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           BottomBar(
   onSend: (text) async {
-    onPhotoSend: (filePath) async {
-  await _chatService.sendPhoto(
-    roomId: widget.roomId,
-    senderId: FirebaseAuth.instance.currentUser!.uid,
-    filePath: filePath,
-  );
-},
-              final user = FirebaseAuth.instance.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
 
-              if (user == null) return;
+    if (user == null) return;
 
-              await _chatService.sendMessage(
-                roomId: widget.roomId,
-                senderId: user.uid,
-                text: text,
-              );
-            },
-            onNext: () async {
-              await MatchService.leaveRoom(widget.roomId);
+    await _chatService.sendMessage(
+      roomId: widget.roomId,
+      senderId: user.uid,
+      text: text,
+    );
+  },
 
-              if (!mounted) return;
+  onPhotoSend: (filePath) async {
+    final user = FirebaseAuth.instance.currentUser;
 
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SearchingScreen(),
-                ),
-              );
-            },
-          ),
-        ],
+    if (user == null) return;
+
+    await _chatService.sendPhoto(
+      roomId: widget.roomId,
+      senderId: user.uid,
+      filePath: filePath,
+    );
+  },
+
+  onNext: () async {
+    await MatchService.leaveRoom(widget.roomId);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SearchingScreen(),
+      ),
+    );
+  },
+),
+        ]
       ),
     );
   }
