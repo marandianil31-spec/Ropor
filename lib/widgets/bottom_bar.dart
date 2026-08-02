@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 
 class BottomBar extends StatefulWidget {
   final Function(String) onSend;
-  final VoidCallback onNext;
+final Function(String) onPhotoSend;
+final VoidCallback onNext;
 
   const BottomBar({
-    super.key,
-    required this.onSend,
-    required this.onNext,
-  });
+  super.key,
+  required this.onSend,
+  required this.onPhotoSend,
+  required this.onNext,
+});
 
   @override
   State<BottomBar> createState() => _BottomBarState();
@@ -28,11 +30,13 @@ Future<void> _takePhoto() async {
 
     if (photo == null) return;
 
+    await widget.onPhotoSend(photo.path);
+
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Photo selected: ${photo.name}'),
+      const SnackBar(
+        content: Text('Photo sent'),
       ),
     );
   } catch (e) {
@@ -40,7 +44,7 @@ Future<void> _takePhoto() async {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Camera error: $e'),
+        content: Text('Photo send error: $e'),
       ),
     );
   }
