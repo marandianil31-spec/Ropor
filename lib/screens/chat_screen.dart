@@ -113,7 +113,14 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           BottomBar(
-            onSend: (text) async {
+  onSend: (text) async {
+    onPhotoSend: (filePath) async {
+  await _chatService.sendPhoto(
+    roomId: widget.roomId,
+    senderId: FirebaseAuth.instance.currentUser!.uid,
+    filePath: filePath,
+  );
+},
               final user = FirebaseAuth.instance.currentUser;
 
               if (user == null) return;
