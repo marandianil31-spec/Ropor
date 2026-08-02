@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 
 class BottomBar extends StatefulWidget {
@@ -16,7 +17,34 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   final TextEditingController controller = TextEditingController();
+final ImagePicker _picker = ImagePicker();
 
+Future<void> _takePhoto() async {
+  try {
+    final XFile? photo = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+
+    if (photo == null) return;
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Photo selected: ${photo.name}'),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Camera error: $e'),
+      ),
+    );
+  }
+}
   void _showAttachmentMenu() {
     showModalBottomSheet(
       context: context,
@@ -27,16 +55,10 @@ class _BottomBarState extends State<BottomBar> {
               ListTile(
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Camera Photo'),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Camera Photo - coming next'),
-                    ),
-                  );
-                },
-              ),
+               onTap: () {
+  Navigator.pop(sheetContext);
+  _takePhoto();
+}, 
 
               ListTile(
                 leading: const Icon(Icons.photo),
