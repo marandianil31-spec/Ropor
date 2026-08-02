@@ -59,6 +59,7 @@ Future<void> _takePhoto() async {
   Navigator.pop(sheetContext);
   _takePhoto();
 }, 
+),                
 
               ListTile(
                 leading: const Icon(Icons.photo),
