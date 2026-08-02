@@ -26,7 +26,12 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = ChatService();
+  bool _containsBlockedContact(String text) {
+  final value = text.toLowerCase();
 
+  // Email address
+  final emailRegex = RegExp(
+    r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
