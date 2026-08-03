@@ -68,16 +68,28 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: const Text('Cancel'),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
+  onPressed: () async {
+    final user = FirebaseAuth.instance.currentUser;
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Report submitted'),
-                        ),
-                      );
-                    },
-                    child: const Text('Report'),
+    if (user == null) return;
+
+    await ReportService.submitReport(
+      reporterId: user.uid,
+      roomId: widget.roomId,
+      reason: 'Other',
+    );
+
+    if (!mounted) return;
+
+    Navigator.pop(dialogContext);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Report submitted successfully'),
+      ),
+    );
+  },
+  child: const Text('Report'),
                   ),
                 ],
               );
