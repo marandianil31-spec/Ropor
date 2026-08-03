@@ -52,50 +52,51 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: TopBar(
         onReport: () {
-          showDialog(
-            context: context,
-            builder: (dialogContext) {
-              return AlertDialog(
-                title: const Text('Report User'),
-                content: const Text(
-                  'Do you want to report this user?',
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      return SimpleDialog(
+        title: const Text('Why are you reporting this user?'),
+        children: [
+          'Harassment',
+          'Abusive Language',
+          'Spam',
+          'Sexual Content',
+          'Sharing Contact Info',
+          'Other',
+        ].map((reason) {
+          return SimpleDialogOption(
+            onPressed: () async {
+              final user = FirebaseAuth.instance.currentUser;
+
+              if (user == null) return;
+
+              await ReportService.submitReport(
+                reporterId: user.uid,
+                roomId: widget.roomId,
+                reason: reason,
+              );
+
+              if (!mounted) return;
+
+              Navigator.pop(dialogContext);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Report submitted: $reason'),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-  onPressed: () async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) return;
-
-    await ReportService.submitReport(
-      reporterId: user.uid,
-      roomId: widget.roomId,
-      reason: 'Other',
-    );
-
-    if (!mounted) return;
-
-    Navigator.pop(dialogContext);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Report submitted successfully'),
-      ),
-    );
-  },
-  child: const Text('Report'),
-                  ),
-                ],
               );
             },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(reason),
+            ),
           );
-        },
+        }).toList(),
+      );
+    },
+  );
+},
         onNext: () async {
           await MatchService.leaveRoom(widget.roomId);
 
