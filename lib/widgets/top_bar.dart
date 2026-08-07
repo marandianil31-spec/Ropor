@@ -3,12 +3,14 @@ import '../theme/app_theme.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onReport;
-  final VoidCallback onNext;
+final VoidCallback onBlock;
+final VoidCallback onNext;
 
   const TopBar({
     super.key,
     required this.onReport,
-    required this.onNext,
+required this.onBlock,
+required this.onNext,
   });
 
   @override
@@ -25,15 +27,19 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.flag, color: Colors.white),
-          onPressed: onReport,
-        ),
-        IconButton(
-          icon: const Icon(Icons.skip_next, color: Colors.white),
-          onPressed: onNext,
-        ),
-      ],
+  IconButton(
+    icon: const Icon(Icons.flag, color: Colors.white),
+    onPressed: onReport,
+  ),
+  IconButton(
+    icon: const Icon(Icons.block, color: Colors.white),
+    onPressed: onBlock,
+  ),
+  IconButton(
+    icon: const Icon(Icons.skip_next, color: Colors.white),
+    onPressed: onNext,
+  ),
+],
     );
   }
 
