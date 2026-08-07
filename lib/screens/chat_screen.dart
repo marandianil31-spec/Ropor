@@ -48,6 +48,47 @@ class _ChatScreenState extends State<ChatScreen> {
       phoneRegex.hasMatch(value) ||
       socialRegex.hasMatch(value);
   }
+  Future<void> _blockCurrentUser() async {
+  final currentUser = FirebaseAuth.instance.currentUser;
+
+  if (currentUser == null) return;
+
+  final otherUserId =
+      await MatchService.getOtherUserId(widget.roomId);
+
+  if (otherUserId == null) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('User not found'),
+      ),
+    );
+    return;
+  }
+
+  await BlockService.blockUser(
+    currentUserId: currentUser.uid,
+    blockedUserId: otherUserId,
+  );
+
+  await MatchService.leaveRoom(widget.roomId);
+
+  if (!mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('User blocked'),
+    ),
+  );
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const SearchingScreen(),
+    ),
+  );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
