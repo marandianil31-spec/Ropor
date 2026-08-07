@@ -45,7 +45,6 @@ if (iBlockedThem || theyBlockedMe) {
   },
   "createdAt": ServerValue.timestamp,
 });
-}
           await waitingRef.child(firstUid).remove();
 
           return;
