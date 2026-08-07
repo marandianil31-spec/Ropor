@@ -41,7 +41,34 @@ class MatchService {
       "time": ServerValue.timestamp,
     });
   }
+static Future<String?> getOtherUserId(String roomId) async {
+  final user = FirebaseAuth.instance.currentUser;
 
+  if (user == null) return null;
+
+  final snapshot = await db
+      .child("chatrooms")
+      .child(roomId)
+      .child("users")
+      .get();
+
+  if (!snapshot.exists || snapshot.value == null) {
+    return null;
+  }
+
+  final users = snapshot.value as Map<dynamic, dynamic>;
+
+  for (final uid in users.keys) {
+    final id = uid.toString();
+
+    if (id != user.uid) {
+      return id;
+    }
+  }
+
+  return null;
+}
+  
   static Future<void> leaveRoom(String roomId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
