@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'block_service.dart';
 
 class MatchService {
   static final DatabaseReference db = FirebaseDatabase.instance.ref();
@@ -20,6 +21,14 @@ class MatchService {
         final firstUid = data.keys.first.toString();
 
         if (firstUid != user.uid) {
+          final isBlocked = await BlockService.isBlocked(
+  currentUserId: user.uid,
+  otherUserId: firstUid,
+);
+
+if (isBlocked) {
+  return;
+}
           final roomId = db.child("chatrooms").push().key!;
 
           await db.child("chatrooms").child(roomId).set({
