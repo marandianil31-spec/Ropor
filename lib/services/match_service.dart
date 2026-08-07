@@ -21,13 +21,19 @@ class MatchService {
         final firstUid = data.keys.first.toString();
 
         if (firstUid != user.uid) {
-          final isBlocked = await BlockService.isBlocked(
+          final iBlockedThem = await BlockService.isBlocked(
   currentUserId: user.uid,
   otherUserId: firstUid,
 );
 
-if (isBlocked) {
+final theyBlockedMe = await BlockService.isBlocked(
+  currentUserId: firstUid,
+  otherUserId: user.uid,
+);
+
+if (iBlockedThem || theyBlockedMe) {
   return;
+}
 }
           final roomId = db.child("chatrooms").push().key!;
 
