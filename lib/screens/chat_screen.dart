@@ -141,8 +141,6 @@ class _ChatScreenState extends State<ChatScreen> {
 },
         
       onBlock: _blockCurrentUser,
-      onNext: () async {
-        await MatchService.leaveRoom(widget.roomId);
         onNext: () async {
           await MatchService.leaveRoom(widget.roomId);
 
