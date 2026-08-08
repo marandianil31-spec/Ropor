@@ -10,8 +10,7 @@ class MatchService {
 
     if (user == null) return;
 
-    final waitingRef = db.child("waiting");
-
+    final waitingRef = db.child('waiting');
     final waitingSnapshot = await waitingRef.get();
 
     if (waitingSnapshot.exists) {
@@ -22,77 +21,81 @@ class MatchService {
 
         if (firstUid != user.uid) {
           final iBlockedThem = await BlockService.isBlocked(
-  currentUserId: user.uid,
-  otherUserId: firstUid,
-);
+            currentUserId: user.uid,
+            otherUserId: firstUid,
+          );
 
-final theyBlockedMe = await BlockService.isBlocked(
-  currentUserId: firstUid,
-  otherUserId: user.uid,
-);
+          final theyBlockedMe = await BlockService.isBlocked(
+            currentUserId: firstUid,
+            otherUserId: user.uid,
+          );
 
-if (iBlockedThem || theyBlockedMe) {
-  return;
-}
-}
-          final roomId = db.child("chatrooms").push().key!;
+          if (iBlockedThem || theyBlockedMe) {
+            await waitingRef.child(firstUid).remove();
+            return;
+          }
 
-          await db.child("chatrooms").child(roomId).set({
-  "roomId": roomId,
-  "users": {
-    firstUid: true,
-    user.uid: true,
-  },
-  "createdAt": ServerValue.timestamp,
-});
+          final roomId = db.child('chatrooms').push().key!;
+
+          await db.child('chatrooms').child(roomId).set({
+            'roomId': roomId,
+            'users': {
+              firstUid: true,
+              user.uid: true,
+            },
+            'createdAt': ServerValue.timestamp,
+          });
+
           await waitingRef.child(firstUid).remove();
-
           return;
         }
       }
     }
-        await waitingRef.child(user.uid).set({
-      "time": ServerValue.timestamp,
+
+    await waitingRef.child(user.uid).set({
+      'time': ServerValue.timestamp,
     });
   }
-static Future<String?> getOtherUserId(String roomId) async {
-  final user = FirebaseAuth.instance.currentUser;
 
-  if (user == null) return null;
+  static Future<String?> getOtherUserId(String roomId) async {
+    final user = FirebaseAuth.instance.currentUser;
 
-  final snapshot = await db
-      .child("chatrooms")
-      .child(roomId)
-      .child("users")
-      .get();
+    if (user == null) return null;
 
-  if (!snapshot.exists || snapshot.value == null) {
+    final snapshot = await db
+        .child('chatrooms')
+        .child(roomId)
+        .child('users')
+        .get();
+
+    if (!snapshot.exists || snapshot.value == null) {
+      return null;
+    }
+
+    final users = snapshot.value as Map<dynamic, dynamic>;
+
+    for (final uid in users.keys) {
+      final id = uid.toString();
+
+      if (id != user.uid) {
+        return id;
+      }
+    }
+
     return null;
   }
 
-  final users = snapshot.value as Map<dynamic, dynamic>;
-
-  for (final uid in users.keys) {
-    final id = uid.toString();
-
-    if (id != user.uid) {
-      return id;
-    }
-  }
-
-  return null;
-}
-  
   static Future<void> leaveRoom(String roomId) async {
     final user = FirebaseAuth.instance.currentUser;
+
     if (user == null) return;
 
-    final roomRef = db.child("chatrooms").child(roomId);
+    final roomRef = db.child('chatrooms').child(roomId);
 
-    await roomRef.child("users").child(user.uid).remove();
+    await roomRef.child('users').child(user.uid).remove();
 
-    await db.child("waiting").child(user.uid).set({
-      "time": ServerValue.timestamp,
+    await db.child('waiting').child(user.uid).set({
+      'time': ServerValue.timestamp,
     });
   }
 }
