@@ -86,16 +86,21 @@ class MatchService {
   }
 
   static Future<void> leaveRoom(String roomId) async {
-    final user = FirebaseAuth.instance.currentUser;
+  final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) return;
+  if (user == null) return;
 
-    final roomRef = db.child('chatrooms').child(roomId);
+  final roomRef = db.child('chatrooms').child(roomId);
 
-    await roomRef.child('users').child(user.uid).remove();
+  // Current user ko room se remove karo
+  await roomRef.child('users').child(user.uid).remove();
 
-    await db.child('waiting').child(user.uid).set({
-      'time': ServerValue.timestamp,
-    });
+  // Check karo room mein koi user bacha hai ya nahi
+  final usersSnapshot = await roomRef.child('users').get();
+
+  // Agar koi user nahi bacha, to room delete karo
+  if (!usersSnapshot.exists ||
+      usersSnapshot.value == null) {
+    await roomRef.remove();
   }
-}
+  }
