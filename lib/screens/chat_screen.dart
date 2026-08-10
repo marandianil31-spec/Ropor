@@ -67,28 +67,23 @@ class _ChatScreenState extends State<ChatScreen> {
     return;
   }
 
-  await BlockService.blockUser(
-    currentUserId: currentUser.uid,
-    blockedUserId: otherUserId,
-  );
-
-  await MatchService.leaveRoom(widget.roomId);
-
-  if (!mounted) return;
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('User blocked'),
-    ),
-  );
-
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const SearchingScreen(),
-    ),
-  );
+    Future<void> _blockCurrentUser() async {
+    // aapka existing block code...
   }
+
+  onNext: _nextUser,
+    await MatchService.leaveRoom(widget.roomId);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SearchingScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -214,7 +209,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   },
 
-  onNext: () async {
+  onNext: _nextUser,
     await MatchService.leaveRoom(widget.roomId);
 
     if (!mounted) return;
