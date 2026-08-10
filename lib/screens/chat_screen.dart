@@ -286,3 +286,4 @@ void initState() {
     _roomSubscription?.cancel();
     super.dispose();
   }
+}
