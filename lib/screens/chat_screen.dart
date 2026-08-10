@@ -74,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
       currentUserId: currentUser.uid,
       blockedUserId: otherUserId,
     );
-
+    await _roomSubscription?.cancel();
     await MatchService.leaveRoom(widget.roomId);
 
     if (!mounted) return;
@@ -94,6 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _nextUser() async {
+    await _roomSubscription?.cancel();
     await MatchService.leaveRoom(widget.roomId);
 
     if (!mounted) return;
