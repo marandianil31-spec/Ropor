@@ -281,4 +281,8 @@ void initState() {
       ),
     );
   }
-}
+ @override
+  void dispose() {
+    _roomSubscription?.cancel();
+    super.dispose();
+  }
