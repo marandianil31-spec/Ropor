@@ -130,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!users.containsKey(currentUser.uid) ||
         users.length < 2) {
       await _roomSubscription?.cancel();
-
+      await MatchService.leaveRoom(widget.roomId)
       if (!mounted) return;
 
       Navigator.pushReplacement(
