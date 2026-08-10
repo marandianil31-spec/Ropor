@@ -28,50 +28,71 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = ChatService();
+
   bool _containsBlockedContact(String text) {
-  final String value = text.toLowerCase();
+    final String value = text.toLowerCase();
 
-  final RegExp emailRegex = RegExp(
-    r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+[.][a-zA-Z]{2,}',
-  );
+    final RegExp emailRegex = RegExp(
+      r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+[.][a-zA-Z]{2,}',
+    );
 
-  final RegExp phoneRegex = RegExp(
-    r'[0-9]{8,15}',
-  );
+    final RegExp phoneRegex = RegExp(
+      r'[0-9]{8,15}',
+    );
 
-  final RegExp socialRegex = RegExp(
-    r'instagram|insta|whatsapp|telegram|facebook|snapchat',
-    caseSensitive: false,
-  );
+    final RegExp socialRegex = RegExp(
+      r'instagram|insta|whatsapp|telegram|facebook|snapchat',
+      caseSensitive: false,
+    );
 
-  return emailRegex.hasMatch(value) ||
-      phoneRegex.hasMatch(value) ||
-      socialRegex.hasMatch(value);
+    return emailRegex.hasMatch(value) ||
+        phoneRegex.hasMatch(value) ||
+        socialRegex.hasMatch(value);
   }
+
   Future<void> _blockCurrentUser() async {
-  final currentUser = FirebaseAuth.instance.currentUser;
+    final currentUser = FirebaseAuth.instance.currentUser;
 
-  if (currentUser == null) return;
+    if (currentUser == null) return;
 
-  final otherUserId =
-      await MatchService.getOtherUserId(widget.roomId);
+    final otherUserId =
+        await MatchService.getOtherUserId(widget.roomId);
 
-  if (otherUserId == null) {
+    if (otherUserId == null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User not found'),
+        ),
+      );
+      return;
+    }
+
+    await BlockService.blockUser(
+      currentUserId: currentUser.uid,
+      blockedUserId: otherUserId,
+    );
+
+    await MatchService.leaveRoom(widget.roomId);
+
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('User not found'),
+        content: Text('User blocked'),
       ),
     );
-    return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SearchingScreen(),
+      ),
+    );
   }
 
-    Future<void> _blockCurrentUser() async {
-    // aapka existing block code...
-  }
-
-  onNext: _nextUser,
+  Future<void> _nextUser() async {
     await MatchService.leaveRoom(widget.roomId);
 
     if (!mounted) return;
@@ -89,73 +110,69 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: TopBar(
         onReport: () {
-  showDialog(
-    context: context,
-    builder: (dialogContext) {
-      return SimpleDialog(
-        title: const Text('Why are you reporting this user?'),
-        children: [
-          'Harassment',
-          'Abusive Language',
-          'Spam',
-          'Sexual Content',
-          'Sharing Contact Info',
-          'Other',
-        ].map((reason) {
-          return SimpleDialogOption(
-            onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-
-              if (user == null) return;
-
-              await ReportService.submitReport(
-                reporterId: user.uid,
-                roomId: widget.roomId,
-                reason: reason,
-              );
-
-              if (!mounted) return;
-
-              Navigator.pop(dialogContext);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Report submitted: $reason'),
+          showDialog(
+            context: context,
+            builder: (dialogContext) {
+              return SimpleDialog(
+                title: const Text(
+                  'Why are you reporting this user?',
                 ),
+                children: [
+                  'Harassment',
+                  'Abusive Language',
+                  'Spam',
+                  'Sexual Content',
+                  'Sharing Contact Info',
+                  'Other',
+                ].map((reason) {
+                  return SimpleDialogOption(
+                    onPressed: () async {
+                      final user =
+                          FirebaseAuth.instance.currentUser;
+
+                      if (user == null) return;
+
+                      await ReportService.submitReport(
+                        reporterId: user.uid,
+                        roomId: widget.roomId,
+                        reason: reason,
+                      );
+
+                      if (!mounted) return;
+
+                      Navigator.pop(dialogContext);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text('Report submitted: $reason'),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                      ),
+                      child: Text(reason),
+                    ),
+                  );
+                }).toList(),
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(reason),
-            ),
-          );
-        }).toList(),
-      );
-    },
-  );
-},
-        
-      onBlock: _blockCurrentUser,
-        onNext: () async {
-          await MatchService.leaveRoom(widget.roomId);
-
-          if (!mounted) return;
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const SearchingScreen(),
-            ),
           );
         },
+        onBlock: _blockCurrentUser,
+        onNext: _nextUser,
       ),
       backgroundColor: AppTheme.background,
       body: Column(
         children: [
           const WarningCard(),
+
           Expanded(
             child: StreamBuilder<DatabaseEvent>(
-              stream: _chatService.messageStream(widget.roomId),
+              stream:
+                  _chatService.messageStream(widget.roomId),
               builder: (context, snapshot) {
                 if (!snapshot.hasData ||
                     snapshot.data!.snapshot.value == null) {
@@ -164,8 +181,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 }
 
-                final data = snapshot.data!.snapshot.value
-                    as Map<dynamic, dynamic>;
+                final data =
+                    snapshot.data!.snapshot.value
+                        as Map<dynamic, dynamic>;
 
                 final messages = data.entries.toList();
 
@@ -177,52 +195,47 @@ class _ChatScreenState extends State<ChatScreen> {
                     return MessageBubble(
                       message: msg['text'] ?? '',
                       isMe: msg['senderId'] ==
-                          FirebaseAuth.instance.currentUser?.uid,
+                          FirebaseAuth
+                              .instance
+                              .currentUser
+                              ?.uid,
                     );
                   },
                 );
               },
             ),
           ),
+
           BottomBar(
-  onSend: (text) async {
-    final user = FirebaseAuth.instance.currentUser;
+            onSend: (text) async {
+              final user =
+                  FirebaseAuth.instance.currentUser;
 
-    if (user == null) return;
+              if (user == null) return;
 
-    await _chatService.sendMessage(
-      roomId: widget.roomId,
-      senderId: user.uid,
-      text: text,
-    );
-  },
+              await _chatService.sendMessage(
+                roomId: widget.roomId,
+                senderId: user.uid,
+                text: text,
+              );
+            },
 
-  onPhotoSend: (filePath) async {
-    final user = FirebaseAuth.instance.currentUser;
+            onPhotoSend: (filePath) async {
+              final user =
+                  FirebaseAuth.instance.currentUser;
 
-    if (user == null) return;
+              if (user == null) return;
 
-    await _chatService.sendPhoto(
-      roomId: widget.roomId,
-      senderId: user.uid,
-      filePath: filePath,
-    );
-  },
+              await _chatService.sendPhoto(
+                roomId: widget.roomId,
+                senderId: user.uid,
+                filePath: filePath,
+              );
+            },
 
-  onNext: _nextUser,
-    await MatchService.leaveRoom(widget.roomId);
-
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const SearchingScreen(),
-      ),
-    );
-  },
-),
-        ]
+            onNext: _nextUser,
+          ),
+        ],
       ),
     );
   }
