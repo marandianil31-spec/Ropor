@@ -142,6 +142,11 @@ class _ChatScreenState extends State<ChatScreen> {
   });
   }
   @override
+void initState() {
+  super.initState();
+  _listenForDisconnect();
+}
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TopBar(
