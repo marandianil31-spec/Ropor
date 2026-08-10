@@ -105,7 +105,41 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+  void _listenForDisconnect() {
+  _roomSubscription = FirebaseDatabase.instance
+      .ref()
+      .child('chatrooms')
+      .child(widget.roomId)
+      .child('users')
+      .onValue
+      .listen((event) async {
+    final data = event.snapshot.value;
 
+    if (data == null) {
+      return;
+    }
+
+    final users = data as Map<dynamic, dynamic>;
+
+    final currentUser =
+        FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) return;
+
+    if (!users.containsKey(currentUser.uid) ||
+        users.length < 2) {
+      await _roomSubscription?.cancel();
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const SearchingScreen(),
+        ),
+      );
+    }
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
