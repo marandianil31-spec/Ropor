@@ -147,6 +147,14 @@ void initState() {
   super.initState();
   _listenForDisconnect();
 }
+  Future<void> _handleBack() async {
+  await _roomSubscription?.cancel();
+  await MatchService.leaveRoom(widget.roomId);
+
+  if (!mounted) return;
+
+  Navigator.pop(context);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
