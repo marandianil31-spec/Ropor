@@ -71,7 +71,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/ropor_logo.png
+    - lib/assets/ropor_logo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -106,12 +106,12 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/ropor_logo.png"
+  lib/assets/ropor_logo.png
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/ropor_logo.png"
+  adaptive_icon_foreground: "lib/assets/ropor_logo.png"
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/ropor_logo.png
+  image_path: "lib/assets/ropor_logo.png"
   android: true
   ios: false
