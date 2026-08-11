@@ -103,15 +103,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-flutter_launcher_icons:
-  android: true
-  ios: false
-    image_path: "lib/assets/rorop_logo.png"
-  adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "lib/assets/ropor_logo.png"
-
-flutter_native_splash:
-  color: "#FFFFFF"
-  image: "lib/assets/rorop_logo.png"
-  android: true
-  ios: false
