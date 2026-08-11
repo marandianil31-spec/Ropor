@@ -157,7 +157,13 @@ void initState() {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+  canPop: false,
+  onPopInvokedWithResult: (didPop, result) {
+    if (didPop) return;
+    _handleBack();
+  },
+  child: Scaffold(
       appBar: TopBar(
         onReport: () {
           showDialog(
