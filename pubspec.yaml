@@ -106,7 +106,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  lib/assets/ropor_logo.png
+    image_path: "lib/assets/rorop_logo.png"
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "lib/assets/ropor_logo.png"
 
