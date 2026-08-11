@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/report_service.dart';
 import '../services/block_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../services/match_service.dart';
