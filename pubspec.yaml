@@ -112,6 +112,6 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image_path: "lib/assets/ropor_logo.png"
+  image: "lib/assets/rorop_logo.png"
   android: true
   ios: false
