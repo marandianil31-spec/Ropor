@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_screen.dart';
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -11,59 +10,50 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+
   @override
-  @override
-void initState() {
-  super.initState();
-  _startApp();
-}
+  void initState() {
+    super.initState();
+    _startApp();
+  }
 
-Future<void> _startApp() async {
-  await FirebaseAuth.instance.signInAnonymously();
+  Future<void> _startApp() async {
+    try {
+      if (FirebaseAuth.instance.currentUser == null) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+    } catch (e) {
+      // Firebase error hone par bhi app continue karega
+    }
 
-  await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(
+      const Duration(seconds: 3),
+    );
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const HomeScreen(),
-    ),
-  );
-}
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.chat_bubble,
-              size: 90,
-              color: Colors.deepPurple,
-            ),
-            SizedBox(height: 20),
-            Text(
-              "Ropor Chat",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Talk Freely • Meet Randomly",
-              style: TextStyle(color: Colors.white70),
-            ),
-            SizedBox(height: 40),
-            CircularProgressIndicator(
-              color: Colors.deepPurple,
-            ),
-          ],
+        child: Image.asset(
+          'lib/assets/ropor_splash.png',
+
+          // Image ko screen ke andar pura rakhega
+          fit: BoxFit.contain,
+
+          width: double.infinity,
+          height: double.infinity,
         ),
       ),
     );
