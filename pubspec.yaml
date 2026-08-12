@@ -103,13 +103,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-  flutter_launcher_icons:
-  android: true
-  ios: false
-  image_path: "lib/assets/ropor_logo.png"
-  min_sdk_android: 21
+ flutter_launcher_icons:
+   android: true
+   ios: false
+   image_path: "lib/assets/ropor_logo.png"
+   min_sdk_android: 21
 
-flutter_native_splash:
+ flutter_native_splash:
   color: "#FFFFFF"
   image: "lib/assets/ropor_logo.png"
   android: true
