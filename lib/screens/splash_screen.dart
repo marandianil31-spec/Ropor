@@ -1,6 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -100,40 +102,54 @@ class _SplashScreenState extends State<SplashScreen>
 
     logoController.forward();
 
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted) {
+    Future.delayed(
+      const Duration(milliseconds: 700),
+      () {
+        if (!mounted) return;
+
         glowController.repeat(reverse: true);
         textController.forward();
-      }
-    });
+      },
+    );
 
-    // Go to Home
     _startApp();
-
-Future<void> _startApp() async {
-  try {
-    // Firebase Anonymous Login
-    if (FirebaseAuth.instance.currentUser == null) {
-      await FirebaseAuth.instance.signInAnonymously();
-    }
-
-    // Splash screen 3 seconds
-    await Future.delayed(
-      const Duration(seconds: 3),
-    );
-
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
-      ),
-    );
-  } catch (e) {
-    debugPrint('Firebase Auth Error: $e');
   }
-}
+
+  Future<void> _startApp() async {
+    try {
+      // Firebase Anonymous Login
+      if (FirebaseAuth.instance.currentUser == null) {
+        await FirebaseAuth.instance.signInAnonymously();
+      }
+
+      // Splash duration
+      await Future.delayed(
+        const Duration(seconds: 3),
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Firebase Auth Error: $e');
+
+      if (!mounted) return;
+
+      // Even if authentication fails,
+      // don't keep the user stuck on splash.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -147,7 +163,6 @@ Future<void> _startApp() async {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-
       body: Center(
         child: AnimatedBuilder(
           animation: Listenable.merge([
@@ -159,8 +174,7 @@ Future<void> _startApp() async {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
-                // Animated Ropor logo
+                // Animated logo
                 Opacity(
                   opacity: opacity.value,
                   child: Transform.scale(
@@ -170,7 +184,6 @@ Future<void> _startApp() async {
                       child: Container(
                         width: 210,
                         height: 210,
-
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           boxShadow: [
@@ -183,7 +196,6 @@ Future<void> _startApp() async {
                             ),
                           ],
                         ),
-
                         child: Image.asset(
                           'lib/assets/Ropor_logo.png',
                           fit: BoxFit.contain,
@@ -195,7 +207,7 @@ Future<void> _startApp() async {
 
                 const SizedBox(height: 28),
 
-                // Ropor text
+                // App name
                 Opacity(
                   opacity: textOpacity.value,
                   child: const Text(
