@@ -27,16 +27,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-      - name: Check logo file
-        run: |
-          pwd
-          echo "Files:"
-          ls -la
-          echo "lib:"
-          ls -la lib
-          echo "assets:"
-          ls -la lib/assets
-          test -f lib/assets/ropor_logo.png
       - name: Generate app icon
         run: dart run flutter_launcher_icons
 
