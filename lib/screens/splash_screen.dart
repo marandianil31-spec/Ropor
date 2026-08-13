@@ -108,17 +108,32 @@ class _SplashScreenState extends State<SplashScreen>
     });
 
     // Go to Home
-    Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
+    _startApp();
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-      );
-    });
+Future<void> _startApp() async {
+  try {
+    // Firebase Anonymous Login
+    if (FirebaseAuth.instance.currentUser == null) {
+      await FirebaseAuth.instance.signInAnonymously();
+    }
+
+    // Splash screen 3 seconds
+    await Future.delayed(
+      const Duration(seconds: 3),
+    );
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const HomeScreen(),
+      ),
+    );
+  } catch (e) {
+    debugPrint('Firebase Auth Error: $e');
   }
+}
 
   @override
   void dispose() {
