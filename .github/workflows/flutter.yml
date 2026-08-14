@@ -24,11 +24,13 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.5'
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get
-       - name: Generate app icon
-         run: dart run flutter_launcher_icons
+
+      - name: Generate app icon
+        run: dart run flutter_launcher_icons
 
       - name: Build APK
         run: flutter build apk --release
