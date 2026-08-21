@@ -5,15 +5,17 @@ import 'block_service.dart';
 class MatchService {
   static final DatabaseReference db = FirebaseDatabase.instance.ref();
 
-  static Future<void> startMatching() async {
+  static Future<String?> startMatching() async {
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) return;
+    if (user == null) return null;
 
     final waitingRef = db.child('waiting');
 
     // Apni purani waiting entry hatao.
-    await waitingRef.child(user.uid).remove();
+    await waitingRef.child(user.uid).set({
+  'time': ServerValue.timestamp,
+});
 
     final waitingSnapshot = await waitingRef.get();
 
@@ -105,7 +107,7 @@ class MatchService {
         // Waiting se matched user ko remove karo.
         await candidateRef.remove();
 
-        return;
+        return roomId;
       }
     }
 
@@ -115,7 +117,7 @@ class MatchService {
       'time': ServerValue.timestamp,
     });
   }
-
+   return null;
   static Future<String?> getOtherUserId(String roomId) async {
     final user = FirebaseAuth.instance.currentUser;
 
