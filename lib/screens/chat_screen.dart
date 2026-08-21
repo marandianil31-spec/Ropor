@@ -227,9 +227,7 @@ void initState() {
                 if (!snapshot.hasData ||
                     snapshot.data!.snapshot.value == null) {
                   return const Center(
-                    child: Text('No messages yet'),
-                  );
-                }
+                    child: Text('No 
 
                 final data =
                     snapshot.data!.snapshot.value
@@ -258,17 +256,30 @@ void initState() {
 
           BottomBar(
             onSend: (text) async {
-              final user =
-                  FirebaseAuth.instance.currentUser;
+  final user = FirebaseAuth.instance.currentUser;
 
-              if (user == null) return;
+  if (user == null) return;
 
-              await _chatService.sendMessage(
-                roomId: widget.roomId,
-                senderId: user.uid,
-                text: text,
-              );
-            },
+  if (_containsBlockedContact(text)) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Sharing phone numbers, email addresses and social media contacts is not allowed.',
+        ),
+      ),
+    );
+
+    return;
+  }
+
+  await _chatService.sendMessage(
+    roomId: widget.roomId,
+    senderId: user.uid,
+    text: text,
+  );
+},
 
             onPhotoSend: (filePath) async {
               final user =
