@@ -11,114 +11,56 @@ class MatchService {
     if (user == null) return null;
 
     final waitingRef = db.child('waiting');
-
-    // Apni purani waiting entry hatao.
-    await waitingRef.child(user.uid).set({
-  'time': ServerValue.timestamp,
-});
-
     final waitingSnapshot = await waitingRef.get();
 
-    if (waitingSnapshot.exists && waitingSnapshot.value is Map) {
-      final data =
-          Map<dynamic, dynamic>.from(waitingSnapshot.value as Map);
+    if (waitingSnapshot.exists && waitingSnapshot.value != null) {
+      final data = waitingSnapshot.value as Map<dynamic, dynamic>;
 
-      // Available users ko ek-ek karke try karo.
-      for (final entry in data.entries) {
-        final firstUid = entry.key.toString();
+      if (data.isNotEmpty) {
+        final firstUid = data.keys.first.toString();
 
-        // Khud se match nahi hona chahiye.
-        if (firstUid == user.uid) {
-          continue;
-        }
+        if (firstUid != user.uid) {
+          final iBlockedThem = await BlockService.isBlocked(
+            currentUserId: user.uid,
+            otherUserId: firstUid,
+          );
 
-        // Kisi aur user ne already is user ko claim kiya ho to skip.
-        final candidateData = entry.value;
+          final theyBlockedMe = await BlockService.isBlocked(
+            currentUserId: firstUid,
+            otherUserId: user.uid,
+          );
 
-        if (candidateData is Map &&
-            candidateData['matched'] == true) {
-          continue;
-        }
+          if (iBlockedThem || theyBlockedMe) {
+            await waitingRef.child(firstUid).remove();
+          } else {
+            final roomId = db.child('chatrooms').push().key;
 
-        // Block check.
-        final iBlockedThem = await BlockService.isBlocked(
-          currentUserId: user.uid,
-          otherUserId: firstUid,
-        );
+            if (roomId == null) return null;
 
-        if (iBlockedThem) {
-          continue;
-        }
+            await db.child('chatrooms').child(roomId).set({
+              'roomId': roomId,
+              'users': {
+                firstUid: true,
+                user.uid: true,
+              },
+              'createdAt': ServerValue.timestamp,
+            });
 
-        final theyBlockedMe = await BlockService.isBlocked(
-          currentUserId: firstUid,
-          otherUserId: user.uid,
-        );
+            await waitingRef.child(firstUid).remove();
 
-        if (theyBlockedMe) {
-          continue;
-        }
-
-        // Candidate ko atomically claim karo.
-        final candidateRef = waitingRef.child(firstUid);
-
-        final transaction =
-            await candidateRef.runTransaction((currentData) {
-          if (currentData == null) {
-            return Transaction.abort();
+            return roomId;
           }
-
-          if (currentData is Map &&
-              currentData['matched'] == true) {
-            return Transaction.abort();
-          }
-
-          final currentMap =
-              Map<dynamic, dynamic>.from(currentData as Map);
-
-          currentMap['matched'] = true;
-          currentMap['matchedBy'] = user.uid;
-
-          return Transaction.success(currentMap);
-        });
-
-        if (!transaction.committed) {
-          continue;
         }
-
-        // Match successful: room create karo.
-        final roomId = db.child('chatrooms').push().key;
-
-        if (roomId == null) {
-          await candidateRef.child('matched').remove();
-          await candidateRef.child('matchedBy').remove();
-          continue;
-        }
-
-        await db.child('chatrooms').child(roomId).set({
-          'roomId': roomId,
-          'users': {
-            firstUid: true,
-            user.uid: true,
-          },
-          'createdAt': ServerValue.timestamp,
-        });
-
-        // Waiting se matched user ko remove karo.
-        await candidateRef.remove();
-
-        return roomId;
       }
     }
 
-    // Koi suitable user nahi mila.
-    // Khud ko waiting list mein daalo.
     await waitingRef.child(user.uid).set({
       'time': ServerValue.timestamp,
     });
+
+    return null;
   }
-   return null;
-   }
+
   static Future<String?> getOtherUserId(String roomId) async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -156,11 +98,9 @@ class MatchService {
 
     await roomRef.child('users').child(user.uid).remove();
 
-    final usersSnapshot =
-        await roomRef.child('users').get();
+    final usersSnapshot = await roomRef.child('users').get();
 
-    if (!usersSnapshot.exists ||
-        usersSnapshot.value == null) {
+    if (!usersSnapshot.exists || usersSnapshot.value == null) {
       await roomRef.remove();
     }
   }
