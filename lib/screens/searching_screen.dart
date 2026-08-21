@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 import '../services/match_service.dart';
 import 'chat_screen.dart';
@@ -15,10 +12,6 @@ class SearchingScreen extends StatefulWidget {
 }
 
 class _SearchingScreenState extends State<SearchingScreen> {
-  final DatabaseReference _db = FirebaseDatabase.instance.ref();
-
-  StreamSubscription<DatabaseEvent>? _roomsSubscription;
-
   bool _isSearching = true;
   String _status = 'Searching for a stranger...';
 
@@ -42,53 +35,31 @@ class _SearchingScreenState extends State<SearchingScreen> {
       return;
     }
 
-    await _roomsSubscription?.cancel();
+    try {
+      final roomId = await MatchService.startMatching();
 
-    _roomsSubscription =
-        _db.child('chatrooms').onValue.listen((DatabaseEvent event) {
-      final value = event.snapshot.value;
-
-      if (value == null || value is! Map) {
+      if (roomId != null) {
+        await _openChat(roomId);
         return;
       }
 
-      for (final entry in value.entries) {
-        final roomId = entry.key.toString();
-        final roomData = entry.value;
+      if (!mounted) return;
 
-        if (roomData is! Map) {
-          continue;
-        }
+      setState(() {
+        _isSearching = true;
+        _status = 'Searching for a stranger...';
+      });
+    } catch (e) {
+      if (!mounted) return;
 
-        final users = roomData['users'];
-
-        if (users is Map && users.containsKey(user.uid)) {
-          _openChat(roomId);
-          return;
-        }
-      }
-    });
-
-    
-      try {
-  final roomId = await MatchService.startMatching();
-
-  if (roomId != null) {
-    await _openChat(roomId);
+      setState(() {
+        _isSearching = false;
+        _status = 'Matching failed. Please try again.';
+      });
+    }
   }
-} catch (e) {
-  if (!mounted) return;
 
-  setState(() {
-    _isSearching = false;
-    _status = 'Matching failed. Please try again.';
-  });
-  }
-    
   Future<void> _openChat(String roomId) async {
-    await _roomsSubscription?.cancel();
-    _roomsSubscription = null;
-
     if (!mounted) return;
 
     Navigator.pushReplacement(
@@ -108,12 +79,6 @@ class _SearchingScreenState extends State<SearchingScreen> {
     });
 
     await _startSearching();
-  }
-
-  @override
-  void dispose() {
-    _roomsSubscription?.cancel();
-    super.dispose();
   }
 
   @override
