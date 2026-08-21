@@ -115,7 +115,7 @@ class MatchService {
     // Khud ko waiting list mein daalo.
     await waitingRef.child(user.uid).set({
       'time': ServerValue.timestamp,
-    });
+    }
   }
    return null;
   static Future<String?> getOtherUserId(String roomId) async {
