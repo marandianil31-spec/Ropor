@@ -69,17 +69,21 @@ class _SearchingScreenState extends State<SearchingScreen> {
       }
     });
 
-    try {
-      await MatchService.startMatching();
-    } catch (e) {
-      if (!mounted) return;
+    
+      try {
+  final roomId = await MatchService.startMatching();
 
-      setState(() {
-        _isSearching = false;
-        _status = 'Matching failed. Please try again.';
-      });
-    }
+  if (roomId != null) {
+    await _openChat(roomId);
   }
+} catch (e) {
+  if (!mounted) return;
+
+  setState(() {
+    _isSearching = false;
+    _status = 'Matching failed. Please try again.';
+  });
+      }
 
   Future<void> _openChat(String roomId) async {
     await _roomsSubscription?.cancel();
