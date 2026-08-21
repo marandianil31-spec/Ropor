@@ -118,6 +118,7 @@ class MatchService {
     });
   }
    return null;
+   }
   static Future<String?> getOtherUserId(String roomId) async {
     final user = FirebaseAuth.instance.currentUser;
 
