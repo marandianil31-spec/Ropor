@@ -83,8 +83,8 @@ class _SearchingScreenState extends State<SearchingScreen> {
     _isSearching = false;
     _status = 'Matching failed. Please try again.';
   });
-      }
-
+  }
+    
   Future<void> _openChat(String roomId) async {
     await _roomsSubscription?.cancel();
     _roomsSubscription = null;
