@@ -225,9 +225,11 @@ void initState() {
                   _chatService.messageStream(widget.roomId),
               builder: (context, snapshot) {
                 if (!snapshot.hasData ||
-                    snapshot.data!.snapshot.value == null) {
-                  return const Center(
-                    child: Text('No 
+    snapshot.data!.snapshot.value == null) {
+  return const Center(
+    child: Text('No messages yet'),
+  );
+                }
 
                 final data =
                     snapshot.data!.snapshot.value
