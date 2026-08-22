@@ -156,8 +156,16 @@ void initState() {
   Navigator.pop(context);
   }
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  return PopScope(
+  canPop: false,
+  onPopInvokedWithResult: (didPop, result) async {
+    if (didPop) return;
+    await _handleBack();
+  },
+  child: Scaffold(
+    );
+    }
+    
       appBar: TopBar(
         onReport: () {
           showDialog(
