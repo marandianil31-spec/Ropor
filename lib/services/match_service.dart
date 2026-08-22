@@ -1,191 +1,149 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-import '../services/match_service.dart';
-import 'chat_screen.dart';
+import 'block_service.dart';
 
-class SearchingScreen extends StatefulWidget {
-  const SearchingScreen({super.key});
+class MatchService {
+  static final DatabaseReference db = FirebaseDatabase.instance.ref();
 
-  @override
-  State<SearchingScreen> createState() =>
-      _SearchingScreenState();
-}
+  static Future<String?> startMatching() async {
+    final user = FirebaseAuth.instance.currentUser;
 
-class _SearchingScreenState
-    extends State<SearchingScreen> {
-  bool _isSearching = true;
-  String _status =
-      'Searching for a stranger...';
+    if (user == null) return null;
 
-  StreamSubscription<DatabaseEvent>?
-      _matchSubscription;
+    final waitingRef = db.child('waiting');
+    final snapshot = await waitingRef.get();
 
-  bool _openingChat = false;
+    if (snapshot.exists && snapshot.value != null) {
+      final data = snapshot.value as Map<dynamic, dynamic>;
 
-  @override
-  void initState() {
-    super.initState();
+      for (final entry in data.entries) {
+        final firstUid = entry.key.toString();
 
-    _listenForMatch();
-    _startSearching();
+        // Khud ko match mat karo
+        if (firstUid == user.uid) {
+          continue;
+        }
+
+        final value = entry.value;
+
+        // Already matched user ko skip karo
+        if (value is Map &&
+            value['matchedRoomId'] != null) {
+          continue;
+        }
+
+        final iBlockedThem = await BlockService.isBlocked(
+          currentUserId: user.uid,
+          otherUserId: firstUid,
+        );
+
+        final theyBlockedMe = await BlockService.isBlocked(
+          currentUserId: firstUid,
+          otherUserId: user.uid,
+        );
+
+        if (iBlockedThem || theyBlockedMe) {
+          await waitingRef.child(firstUid).remove();
+          continue;
+        }
+
+        final roomId =
+            db.child('chatrooms').push().key;
+
+        if (roomId == null) return null;
+
+        // Chat room create
+        await db.child('chatrooms').child(roomId).set({
+          'roomId': roomId,
+          'users': {
+            firstUid: true,
+            user.uid: true,
+          },
+          'createdAt': ServerValue.timestamp,
+        });
+
+        // Waiting user ko roomId batao
+        await waitingRef.child(firstUid).update({
+          'matchedRoomId': roomId,
+        });
+
+        return roomId;
+      }
+    }
+
+    // Koi stranger nahi mila
+    await waitingRef.child(user.uid).set({
+      'time': ServerValue.timestamp,
+    });
+
+    // App/network disconnect hone par waiting entry hata dena
+    await waitingRef.child(user.uid).onDisconnect().remove();
+
+    return null;
   }
 
-  void _listenForMatch() {
-    final user =
-        FirebaseAuth.instance.currentUser;
+  static Future<String?> getOtherUserId(
+    String roomId,
+  ) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return null;
+
+    final snapshot = await db
+        .child('chatrooms')
+        .child(roomId)
+        .child('users')
+        .get();
+
+    if (!snapshot.exists || snapshot.value == null) {
+      return null;
+    }
+
+    final users =
+        snapshot.value as Map<dynamic, dynamic>;
+
+    for (final uid in users.keys) {
+      final id = uid.toString();
+
+      if (id != user.uid) {
+        return id;
+      }
+    }
+
+    return null;
+  }
+
+  static Future<void> leaveWaiting() async {
+    final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) return;
 
-    _matchSubscription = FirebaseDatabase
-        .instance
-        .ref()
+    await db
         .child('waiting')
         .child(user.uid)
-        .onValue
-        .listen((event) async {
-      final data = event.snapshot.value;
-
-      if (data == null) return;
-
-      if (data is Map &&
-          data['matchedRoomId'] != null) {
-        final roomId =
-            data['matchedRoomId'].toString();
-
-        if (roomId.isEmpty) return;
-        if (_openingChat) return;
-
-        _openingChat = true;
-
-        await MatchService.leaveWaiting();
-
-        await _openChat(roomId);
-      }
-    });
+        .remove();
   }
 
-  Future<void> _startSearching() async {
-    final user =
-        FirebaseAuth.instance.currentUser;
+  static Future<void> leaveRoom(String roomId) async {
+    final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) {
-      if (!mounted) return;
+    if (user == null) return;
 
-      setState(() {
-        _isSearching = false;
-        _status =
-            'Unable to start matching';
-      });
+    final roomRef =
+        db.child('chatrooms').child(roomId);
 
-      return;
+    await roomRef
+        .child('users')
+        .child(user.uid)
+        .remove();
+
+    final usersSnapshot =
+        await roomRef.child('users').get();
+
+    if (!usersSnapshot.exists ||
+        usersSnapshot.value == null) {
+      await roomRef.remove();
     }
-
-    try {
-      final roomId =
-          await MatchService.startMatching();
-
-      // Agar isi user ko direct match mil gaya
-      if (roomId != null) {
-        await _openChat(roomId);
-        return;
-      }
-
-      if (!mounted) return;
-
-      setState(() {
-        _isSearching = true;
-        _status =
-            'Searching for a stranger...';
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _isSearching = false;
-        _status =
-            'Matching failed. Please try again.';
-      });
-    }
-  }
-
-  Future<void> _openChat(String roomId) async {
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            ChatScreen(roomId: roomId),
-      ),
-    );
-  }
-
-  Future<void> _retry() async {
-    if (!mounted) return;
-
-    _openingChat = false;
-
-    setState(() {
-      _isSearching = true;
-      _status =
-          'Searching for a stranger...';
-    });
-
-    await MatchService.leaveWaiting();
-
-    await _startSearching();
-  }
-
-  @override
-  void dispose() {
-    _matchSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding:
-                const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
-              children: [
-                if (_isSearching)
-                  const CircularProgressIndicator(),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  _status,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight:
-                        FontWeight.w600,
-                  ),
-                ),
-
-                if (!_isSearching) ...[
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _retry,
-                    child:
-                        const Text('Retry'),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
