@@ -4,89 +4,133 @@ import 'package:firebase_database/firebase_database.dart';
 import 'block_service.dart';
 
 class MatchService {
-  static final DatabaseReference db = FirebaseDatabase.instance.ref();
+  static final DatabaseReference db =
+      FirebaseDatabase.instance.ref();
 
+  // =========================
+  // START MATCHING
+  // =========================
   static Future<String?> startMatching() async {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) return null;
 
+    final myUid = user.uid;
     final waitingRef = db.child('waiting');
+
     final snapshot = await waitingRef.get();
 
     if (snapshot.exists && snapshot.value != null) {
       final data = snapshot.value as Map<dynamic, dynamic>;
 
       for (final entry in data.entries) {
-        final firstUid = entry.key.toString();
+        final strangerUid = entry.key.toString();
 
-        // Khud ko match mat karo
-        if (firstUid == user.uid) {
+        // Khud se match nahi karna
+        if (strangerUid == myUid) {
           continue;
         }
 
-        final value = entry.value;
+        final strangerData = entry.value;
 
-        // Already matched user ko skip karo
-        if (value is Map &&
-            value['matchedRoomId'] != null) {
+        // Agar stranger already kisi ke saath match ho chuka hai
+        if (strangerData is Map &&
+            strangerData['matchedRoomId'] != null) {
           continue;
         }
 
-        final iBlockedThem = await BlockService.isBlocked(
-          currentUserId: user.uid,
-          otherUserId: firstUid,
+        // Block check
+        final iBlockedThem =
+            await BlockService.isBlocked(
+          currentUserId: myUid,
+          otherUserId: strangerUid,
         );
 
-        final theyBlockedMe = await BlockService.isBlocked(
-          currentUserId: firstUid,
-          otherUserId: user.uid,
+        final theyBlockedMe =
+            await BlockService.isBlocked(
+          currentUserId: strangerUid,
+          otherUserId: myUid,
         );
 
         if (iBlockedThem || theyBlockedMe) {
-          await waitingRef.child(firstUid).remove();
+          await waitingRef
+              .child(strangerUid)
+              .remove();
+
           continue;
         }
+
+        // =========================
+        // CREATE CHAT ROOM
+        // =========================
 
         final roomId =
             db.child('chatrooms').push().key;
 
-        if (roomId == null) return null;
+        if (roomId == null) {
+          return null;
+        }
 
-        // Chat room create
-        await db.child('chatrooms').child(roomId).set({
+        await db
+            .child('chatrooms')
+            .child(roomId)
+            .set({
           'roomId': roomId,
           'users': {
-            firstUid: true,
-            user.uid: true,
+            strangerUid: true,
+            myUid: true,
           },
           'createdAt': ServerValue.timestamp,
         });
 
-        // Waiting user ko roomId batao
-        await waitingRef.child(firstUid).update({
+        // =========================
+        // FIRST USER KO ROOM ID
+        // =========================
+
+        await waitingRef
+            .child(strangerUid)
+            .update({
           'matchedRoomId': roomId,
         });
+
+        // Apna waiting node ensure karo
+        await waitingRef
+            .child(myUid)
+            .remove();
 
         return roomId;
       }
     }
 
-    // Koi stranger nahi mila
-    await waitingRef.child(user.uid).set({
+    // =========================
+    // KOI STRANGER NAHI MILA
+    // =========================
+
+    // Pehle disconnect handler set karo
+    await waitingRef
+        .child(myUid)
+        .onDisconnect()
+        .remove();
+
+    // Phir waiting me add karo
+    await waitingRef
+        .child(myUid)
+        .set({
       'time': ServerValue.timestamp,
     });
-
-    // App/network disconnect hone par waiting entry hata dena
-    await waitingRef.child(user.uid).onDisconnect().remove();
 
     return null;
   }
 
+  // =========================
+  // GET OTHER USER
+  // =========================
+
   static Future<String?> getOtherUserId(
     String roomId,
   ) async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user =
+        FirebaseAuth.instance.currentUser;
 
     if (user == null) return null;
 
@@ -96,7 +140,8 @@ class MatchService {
         .child('users')
         .get();
 
-    if (!snapshot.exists || snapshot.value == null) {
+    if (!snapshot.exists ||
+        snapshot.value == null) {
       return null;
     }
 
@@ -114,8 +159,13 @@ class MatchService {
     return null;
   }
 
+  // =========================
+  // LEAVE WAITING
+  // =========================
+
   static Future<void> leaveWaiting() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user =
+        FirebaseAuth.instance.currentUser;
 
     if (user == null) return;
 
@@ -125,8 +175,15 @@ class MatchService {
         .remove();
   }
 
-  static Future<void> leaveRoom(String roomId) async {
-    final user = FirebaseAuth.instance.currentUser;
+  // =========================
+  // LEAVE CHAT ROOM
+  // =========================
+
+  static Future<void> leaveRoom(
+    String roomId,
+  ) async {
+    final user =
+        FirebaseAuth.instance.currentUser;
 
     if (user == null) return;
 
